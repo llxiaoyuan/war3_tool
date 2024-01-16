@@ -5,12 +5,12 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-//#pragma comment(linker, "/EXPORT:ijlGetLibVersion=ijl15_old.ijlGetLibVersion")
-//#pragma comment(linker, "/EXPORT:ijlInit=ijl15_old.ijlInit")
-//#pragma comment(linker, "/EXPORT:ijlFree=ijl15_old.ijlFree")
-//#pragma comment(linker, "/EXPORT:ijlRead=ijl15_old.ijlRead")
-//#pragma comment(linker, "/EXPORT:ijlWrite=ijl15_old.ijlWrite")
-//#pragma comment(linker, "/EXPORT:ijlErrorStr=ijl15_old.ijlErrorStr")
+#pragma comment (linker, "/export:ijlErrorStr=ijl15_old.ijlErrorStr,@6")
+#pragma comment (linker, "/export:ijlFree=ijl15_old.ijlFree,@3")
+#pragma comment (linker, "/export:ijlGetLibVersion=ijl15_old.ijlGetLibVersion,@1")
+#pragma comment (linker, "/export:ijlInit=ijl15_old.ijlInit,@2")
+#pragma comment (linker, "/export:ijlRead=ijl15_old.ijlRead,@4")
+#pragma comment (linker, "/export:ijlWrite=ijl15_old.ijlWrite,@5")
 
 /*
 Game.dll+529D8 - 8B 32                 - mov esi,[edx]
