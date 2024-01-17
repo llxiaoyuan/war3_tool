@@ -30,8 +30,19 @@ void __stdcall check_1650(int* address) {
             //printf("CameraDistanceAddress: %p CameraDistance: %f\n", g_CameraDistanceAddress, *g_CameraDistanceAddress);
         }
     }
-    if (*address == 0x44CE4000) { //1650.0f
-        g_CameraDistanceAddress = (float*)address;
+    //44CE4000 00000000 42C80000 461C4000
+    if (*address == 0x44CE4000) {//1650.0f
+        //                                     100.0f                      10000.0f
+        if (address[1] == 0x0 && address[2] == 0x42c80000 && address[3] == 0x461c4000) {
+            if (g_CameraDistanceAddress != (float*)address) {
+                g_CameraDistanceAddress = (float*)address;
+                //printf("CameraDistanceAddress: %p CameraDistance: %f\n", g_CameraDistanceAddress, *g_CameraDistanceAddress);
+                //for (size_t i = 0; i < 4; i++) {
+                //    printf("%x ", address[i]);
+                //}
+                //printf("\n");
+            }
+        }
     }
 }
 
