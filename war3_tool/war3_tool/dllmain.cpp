@@ -20,22 +20,14 @@ Game.dll+529DC - 89 75 F8              - mov [ebp-08],esi
 
 float* g_CameraDistanceAddress;
 void __stdcall check_1650(int* address) {
-    if (g_CameraDistanceAddress != NULL) {
-        if (GetAsyncKeyState(VK_OEM_MINUS) & 1) {
-            *g_CameraDistanceAddress -= 100.0f;
-            //printf("CameraDistanceAddress: %p CameraDistance: %f\n", g_CameraDistanceAddress, *g_CameraDistanceAddress);
-        }
-        else if (GetAsyncKeyState(VK_OEM_PLUS) & 1) {
-            *g_CameraDistanceAddress += 100.0f;
-            //printf("CameraDistanceAddress: %p CameraDistance: %f\n", g_CameraDistanceAddress, *g_CameraDistanceAddress);
-        }
-    }
     //44CE4000 00000000 42C80000 461C4000
     if (*address == 0x44CE4000) {//1650.0f
         //                                     100.0f                      10000.0f
         if (address[1] == 0x0 && address[2] == 0x42c80000 && address[3] == 0x461c4000) {
             if (g_CameraDistanceAddress != (float*)address) {
-                g_CameraDistanceAddress = (float*)address;
+                InterlockedExchangePointer((void**)&g_CameraDistanceAddress, address);
+                //g_CameraDistanceAddress = (float*)address;
+                // 
                 //printf("CameraDistanceAddress: %p CameraDistance: %f\n", g_CameraDistanceAddress, *g_CameraDistanceAddress);
                 //for (size_t i = 0; i < 4; i++) {
                 //    printf("%x ", address[i]);
@@ -58,15 +50,36 @@ void Write_jmp_E9(uint8_t* address, uint32_t displacement) {
     address++;
     *(uint32_t*)address = displacement;
 }
+
 void Write_jmp_E9(uint8_t* address, uint32_t source, uint32_t destination) {
     Write_jmp_E9(address, destination - (source + 5));
+}
+
+DWORD WINAPI InputFunction(LPVOID lpThreadParameter) {
+    while (true) {
+        if (g_CameraDistanceAddress != NULL) {
+            if (GetAsyncKeyState(VK_OEM_MINUS) & 1) {
+                *g_CameraDistanceAddress -= 100.0f;
+                //printf("CameraDistanceAddress: %p CameraDistance: %f\n", g_CameraDistanceAddress, *g_CameraDistanceAddress);
+            }
+            else if (GetAsyncKeyState(VK_OEM_PLUS) & 1) {
+                *g_CameraDistanceAddress += 100.0f;
+                //printf("CameraDistanceAddress: %p CameraDistance: %f\n", g_CameraDistanceAddress, *g_CameraDistanceAddress);
+            }
+        }
+        Sleep(16);
+    }
+    return 0;
 }
 
 DWORD WINAPI ThreadFunction(LPVOID lpThreadParameter)
 {
     //AllocConsole();
     //freopen("CONOUT$", "w", stdout);
+
     g_CameraDistanceAddress = NULL;
+
+    CreateThread(NULL, 0, InputFunction, NULL, 0, NULL);
 
     uint8_t* Game_dll;
     while (true) {
@@ -90,6 +103,8 @@ DWORD WINAPI ThreadFunction(LPVOID lpThreadParameter)
     VirtualProtect(target, 5, Protect, &Protect);
     return 0;
 }
+
+
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
 {
